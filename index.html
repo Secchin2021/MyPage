@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ある一ヶ月の記憶を、すりガラス越しに覗くように。日記アーカイブ — 2026年7月。">
+  <title>透過日記 — 2026年7月のアーカイブ</title>
+  <style>
+    /* ============================================
+       DESIGN TOKENS — Liquid Material System
+       Apple Liquid Glass × Google Material 3
+       ============================================ */
+    :root {
+      /* --- Palette --- */
+      --surface-bg: #f0ede8;
+      --surface-warm: #faf7f2;
+      --ink-primary: #2c2825;
+      --ink-secondary: #6b635a;
+      --ink-tertiary: #9e958a;
+      --accent-indigo: #6366f1;
+      --accent-rose: #e879a0;
+      --accent-amber: #f59e0b;
+      --accent-teal: #14b8a6;
+      --accent-sky: #38bdf8;
+
+      /* --- Glass Surface --- */
+      --glass-bg: rgba(255, 255, 255, 0.42);
+      --glass-bg-hover: rgba(255, 255, 255, 0.58);
+      --glass-border: rgba(255, 255, 255, 0.55);
+      --glass-shadow: 0 8px 32px rgba(44, 40, 37, 0.08),
+                       0 2px 8px rgba(44, 40, 37, 0.04);
+      --glass-shadow-hover: 0 12px 40px rgba(44, 40, 37, 0.12),
+                             0 4px 12px rgba(44, 40, 37, 0.06);
+      --glass-blur: 18px;
+
+      /* --- Shape (Material 3 organic radii) --- */
+      --radius-sm: 12px;
+      --radius-md: 20px;
+      --radius-lg: 28px;
+      --radius-xl: 36px;
+
+      /* --- Spacing --- */
+      --space-xs: 6px;
+      --space-sm: 12px;
+      --space-md: 20px;
+      --space-lg: 32px;
+      --space-xl: 48px;
+      --space-2xl: 64px;
+
+      /* --- Typography --- */
+      --font-body: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', system-ui, -apple-system, sans-serif;
+      --font-mono: 'SF Mono', 'Menlo', 'Cascadia Code', 'Courier New', monospace;
+      --font-serif: 'Hiragino Mincho ProN', 'Noto Serif JP', 'Georgia', serif;
+
+      /* --- Animation --- */
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --duration-fast: 0.2s;
+      --duration-normal: 0.35s;
+      --duration-slow: 0.6s;
+    }
+
+    /* ============================================
+       RESET & BASE
+       ============================================ */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      font-family: var(--font-body);
+      color: var(--ink-primary);
+      line-height: 1.8;
+      min-height: 100vh;
+      background: var(--surface-bg);
+      /* Warm gradient backdrop for depth */
+      background-image:
+        radial-gradient(ellipse 80% 60% at 20% 10%, rgba(99, 102, 241, 0.06) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 80% 80%, rgba(232, 121, 160, 0.06) 0%, transparent 60%),
+        radial-gradient(ellipse 70% 40% at 50% 50%, rgba(245, 158, 11, 0.04) 0%, transparent 60%);
+    }
+
+    /* ============================================
+       SITE HEADER
+       ============================================ */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: var(--space-md) var(--space-lg);
+      background: rgba(240, 237, 232, 0.72);
+      backdrop-filter: blur(24px) saturate(1.4);
+      -webkit-backdrop-filter: blur(24px) saturate(1.4);
+      border-bottom: 1px solid var(--glass-border);
+    }
+
+    .site-header__inner {
+      max-width: 720px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-md);
+    }
+
+    .site-header__brand {
+      display: flex;
+      align-items: baseline;
+      gap: var(--space-md);
+    }
+
+    .site-header__socials {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .social-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      color: var(--ink-secondary);
+      background: rgba(255, 255, 255, 0.4);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      transition: all var(--duration-fast) var(--ease-out);
+      text-decoration: none;
+    }
+    
+    .social-link:hover {
+      background: rgba(255, 255, 255, 0.7);
+      color: var(--ink-primary);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .social-link svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
+
+    .site-title {
+      font-family: var(--font-serif);
+      font-size: 1.15rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      color: var(--ink-primary);
+    }
+
+    .site-subtitle {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--ink-tertiary);
+      letter-spacing: 0.04em;
+    }
+
+    /* ============================================
+       MAIN CONTAINER
+       ============================================ */
+    .main-container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: var(--space-xl) var(--space-lg) var(--space-2xl);
+    }
+
+    /* Month header */
+    .month-header {
+      text-align: center;
+      margin-bottom: var(--space-xl);
+      padding: var(--space-lg) 0;
+    }
+
+    .month-header__year {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--ink-tertiary);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    .month-header__month {
+      font-family: var(--font-serif);
+      font-size: 2.8rem;
+      font-weight: 300;
+      color: var(--ink-primary);
+      margin-top: var(--space-xs);
+      letter-spacing: 0.06em;
+    }
+
+    .month-header__desc {
+      font-size: 0.85rem;
+      color: var(--ink-secondary);
+      margin-top: var(--space-sm);
+      font-style: italic;
+    }
+
+    /* ============================================
+       DIARY ENTRY — Glass Card
+       ============================================ */
+    .diary-entry {
+      background: var(--glass-bg);
+      backdrop-filter: blur(var(--glass-blur)) saturate(1.3);
+      -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.3);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--glass-shadow);
+      padding: var(--space-lg);
+      margin-bottom: var(--space-lg);
+      transition: box-shadow var(--duration-normal) var(--ease-out),
+                  background var(--duration-normal) var(--ease-out),
+                  transform var(--duration-normal) var(--ease-out);
+    }
+
+    .diary-entry:hover {
+      box-shadow: var(--glass-shadow-hover);
+      background: var(--glass-bg-hover);
+      transform: translateY(-2px);
+    }
+
+    /* --- Entry Header --- */
+    .entry-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-md);
+      padding-bottom: var(--space-sm);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .entry-date {
+      display: flex;
+      align-items: baseline;
+      gap: var(--space-sm);
+    }
+
+    .entry-date__day {
+      font-family: var(--font-serif);
+      font-size: 1.7rem;
+      font-weight: 300;
+      line-height: 1;
+      color: var(--ink-primary);
+    }
+
+    .entry-date__weekday {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--ink-tertiary);
+      letter-spacing: 0.1em;
+    }
+
+    .entry-mood {
+      font-size: 1.5rem;
+      line-height: 1;
+      filter: saturate(0.85);
+      transition: transform var(--duration-fast) var(--ease-out),
+                  filter var(--duration-fast) var(--ease-out);
+    }
+
+    .entry-mood:hover {
+      transform: scale(1.2) rotate(-8deg);
+      filter: saturate(1.2);
+    }
+
+    /* --- Blurred Photo --- */
+    .entry-photo {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      margin-bottom: var(--space-md);
+      position: relative;
+    }
+
+    .entry-photo__image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: blur(18px) saturate(1.1) brightness(1.02);
+      transform: scale(1.08); /* prevent blur edge artifacts */
+      transition: filter var(--duration-slow) var(--ease-out);
+    }
+
+    .entry-photo__overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.12) 0%,
+        rgba(255, 255, 255, 0) 50%,
+        rgba(0, 0, 0, 0.04) 100%
+      );
+      border-radius: var(--radius-md);
+      pointer-events: none;
+    }
+
+    /* Photo using CSS gradients as abstract imagery */
+    .photo-abstract {
+      width: 100%;
+      height: 100%;
+      filter: blur(22px) saturate(1.2) brightness(1.05);
+      transform: scale(1.12);
+    }
+
+    .photo-abstract--sunset {
+      background: linear-gradient(135deg, #ff6b6b 0%, #feca57 30%, #ff9ff3 60%, #54a0ff 100%);
+    }
+    .photo-abstract--rain {
+      background: linear-gradient(180deg, #576574 0%, #8395a7 40%, #c8d6e5 70%, #dfe6e9 100%);
+    }
+    .photo-abstract--cafe {
+      background: linear-gradient(135deg, #b8860b 0%, #d4a574 30%, #f5e6cc 60%, #8b7355 100%);
+    }
+    .photo-abstract--night {
+      background: linear-gradient(180deg, #0c0c1d 0%, #1a1a3e 30%, #2d2b55 60%, #4834d4 100%);
+    }
+    .photo-abstract--garden {
+      background: linear-gradient(135deg, #2d5016 0%, #6ab04c 30%, #badc58 60%, #f9ca24 100%);
+    }
+    .photo-abstract--sea {
+      background: linear-gradient(180deg, #74b9ff 0%, #0984e3 30%, #006266 60%, #01a3a4 100%);
+    }
+    .photo-abstract--morning {
+      background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 30%, #fab1a0 60%, #e17055 100%);
+    }
+    .photo-abstract--city {
+      background: linear-gradient(135deg, #636e72 0%, #2d3436 30%, #d63031 10%, #fdcb6e 90%, #2d3436 100%);
+    }
+    .photo-abstract--book {
+      background: linear-gradient(135deg, #dfe4ea 0%, #ced6e0 30%, #a4b0be 50%, #747d8c 80%, #57606f 100%);
+    }
+    .photo-abstract--fireworks {
+      background: linear-gradient(135deg, #130f40 0%, #6c5ce7 25%, #fd79a8 50%, #ffeaa7 75%, #130f40 100%);
+    }
+    .photo-abstract--train {
+      background: linear-gradient(135deg, #b2bec3 0%, #636e72 30%, #00b894 50%, #55efc4 80%, #dfe6e9 100%);
+    }
+    .photo-abstract--temple {
+      background: linear-gradient(135deg, #e17055 0%, #d63031 20%, #fab1a0 50%, #ffeaa7 80%, #fdcb6e 100%);
+    }
+
+    /* --- Entry Body Text --- */
+    .entry-body {
+      font-family: var(--font-serif);
+      font-size: 0.95rem;
+      line-height: 2;
+      color: var(--ink-primary);
+      margin-bottom: var(--space-md);
+      text-align: justify;
+      word-break: break-all;
+    }
+
+    .entry-body p {
+      margin-bottom: var(--space-sm);
+      text-indent: 1em;
+    }
+
+    .entry-body p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* --- Emotion Parameters --- */
+    .emotion-params {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-md);
+      padding: var(--space-md);
+      background: rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+
+    .emotion-param {
+      flex: 1 1 calc(50% - var(--space-sm));
+      min-width: 140px;
+    }
+
+    .emotion-param__label {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--ink-secondary);
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .emotion-param__value {
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--ink-primary);
+    }
+
+    .emotion-param__bar {
+      width: 100%;
+      height: 6px;
+      background: rgba(0, 0, 0, 0.06);
+      border-radius: 3px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .emotion-param__fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width var(--duration-slow) var(--ease-out);
+      position: relative;
+    }
+
+    .emotion-param__fill::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.35) 50%,
+        transparent 100%
+      );
+      border-radius: 3px;
+    }
+
+    .fill--indigo  { background: linear-gradient(90deg, #818cf8, #6366f1); }
+    .fill--rose    { background: linear-gradient(90deg, #fda4af, #e879a0); }
+    .fill--amber   { background: linear-gradient(90deg, #fcd34d, #f59e0b); }
+    .fill--teal    { background: linear-gradient(90deg, #5eead4, #14b8a6); }
+    .fill--sky     { background: linear-gradient(90deg, #7dd3fc, #38bdf8); }
+    .fill--violet  { background: linear-gradient(90deg, #c4b5fd, #8b5cf6); }
+
+    /* --- Emoji Reactions --- */
+    .reactions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-xs);
+      padding-top: var(--space-sm);
+      border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .reaction-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 14px;
+      background: rgba(255, 255, 255, 0.35);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border: 1px solid rgba(255, 255, 255, 0.45);
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 0.82rem;
+      color: var(--ink-secondary);
+      transition: all var(--duration-fast) var(--ease-out);
+      user-select: none;
+      -webkit-user-select: none;
+      font-family: var(--font-body);
+    }
+
+    .reaction-btn:hover {
+      background: rgba(255, 255, 255, 0.6);
+      border-color: rgba(255, 255, 255, 0.7);
+      transform: translateY(-1px) scale(1.04);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    .reaction-btn:active {
+      transform: scale(0.96);
+    }
+
+    .reaction-btn.active {
+      background: rgba(99, 102, 241, 0.1);
+      border-color: rgba(99, 102, 241, 0.25);
+    }
+
+    .reaction-btn__emoji {
+      font-size: 1rem;
+      line-height: 1;
+    }
+
+    .reaction-btn__count {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--ink-tertiary);
+      min-width: 12px;
+      text-align: center;
+    }
+
+    /* ============================================
+       SITE FOOTER
+       ============================================ */
+    .site-footer {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: var(--space-xl) var(--space-lg) var(--space-lg);
+      text-align: center;
+    }
+
+    .footer-divider {
+      width: 40px;
+      height: 1px;
+      background: var(--ink-tertiary);
+      opacity: 0.3;
+      margin: 0 auto var(--space-lg);
+    }
+
+    .footer-text {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--ink-tertiary);
+      letter-spacing: 0.05em;
+      margin-bottom: var(--space-md);
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: var(--space-md);
+      list-style: none;
+    }
+
+    .footer-links a {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--ink-tertiary);
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      opacity: 0.6;
+      transition: opacity var(--duration-fast) var(--ease-out),
+                  color var(--duration-fast) var(--ease-out);
+    }
+
+    .footer-links a:hover {
+      opacity: 1;
+      color: var(--ink-secondary);
+    }
+
+    .footer-copy {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      color: var(--ink-tertiary);
+      opacity: 0.4;
+      margin-top: var(--space-lg);
+    }
+
+    /* ============================================
+       SCROLL FADE-IN ANIMATION
+       ============================================ */
+    .diary-entry {
+      opacity: 0;
+      transform: translateY(24px);
+      animation: fadeInUp 0.7s var(--ease-out) forwards;
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Stagger delays for visual rhythm */
+    .diary-entry:nth-child(1)  { animation-delay: 0.05s; }
+    .diary-entry:nth-child(2)  { animation-delay: 0.1s; }
+    .diary-entry:nth-child(3)  { animation-delay: 0.15s; }
+    .diary-entry:nth-child(4)  { animation-delay: 0.2s; }
+    .diary-entry:nth-child(5)  { animation-delay: 0.25s; }
+    .diary-entry:nth-child(6)  { animation-delay: 0.3s; }
+    .diary-entry:nth-child(7)  { animation-delay: 0.35s; }
+    .diary-entry:nth-child(8)  { animation-delay: 0.4s; }
+    .diary-entry:nth-child(9)  { animation-delay: 0.45s; }
+    .diary-entry:nth-child(10) { animation-delay: 0.5s; }
+    .diary-entry:nth-child(11) { animation-delay: 0.55s; }
+    .diary-entry:nth-child(12) { animation-delay: 0.6s; }
+
+    /* ============================================
+       RESPONSIVE
+       ============================================ */
+    @media (max-width: 600px) {
+      .main-container {
+        padding: var(--space-lg) var(--space-md) var(--space-xl);
+      }
+
+      .diary-entry {
+        padding: var(--space-md);
+        border-radius: var(--radius-md);
+      }
+
+      .month-header__month {
+        font-size: 2rem;
+      }
+
+      .emotion-param {
+        flex: 1 1 100%;
+      }
+
+      .entry-date__day {
+        font-size: 1.3rem;
+      }
+
+      .site-header {
+        padding: var(--space-sm) var(--space-md);
+      }
+
+      .site-header__inner {
+        flex-direction: column;
+        align-items: center;
+        gap: var(--space-sm);
+      }
+
+      .site-header__brand {
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== SITE HEADER ==================== -->
+  <header class="site-header">
+    <div class="site-header__inner">
+      <div class="site-header__brand">
+        <span class="site-title">透過日記</span>
+        <span class="site-subtitle">diary archive — 2026.07</span>
+      </div>
+      <div class="site-header__socials">
+        <a href="https://x.com/" target="_blank" rel="noopener noreferrer" class="social-link" title="X (Twitter)">
+          <svg viewBox="0 0 24 24"><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg>
+        </a>
+        <a href="https://instagram.com/" target="_blank" rel="noopener noreferrer" class="social-link" title="Instagram">
+          <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+        </a>
+        <a href="https://github.com/" target="_blank" rel="noopener noreferrer" class="social-link" title="GitHub">
+          <svg viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== MAIN ==================== -->
+  <main class="main-container">
+
+    <!-- Month Header -->
+    <div class="month-header">
+      <div class="month-header__year">TWO THOUSAND TWENTY SIX</div>
+      <h1 class="month-header__month">七月</h1>
+      <p class="month-header__desc">すりガラス越しに覗く、ある夏の断片たち</p>
+    </div>
+
+    <!-- ===== July 1 ===== -->
+    <article class="diary-entry" id="july-01">
+      <div class="entry-header">
+        <div class="entry-date">
+          <span class="entry-date__day">01</span>
+          <span class="entry-date__weekday">WED</span>
+        </div>
+        <span class="entry-mood" title="期待">🌱</span>
+      </div>
+      <div class="entry-photo">
+        <div class="photo-abstract photo-abstract--morning"></div>
+        <div class="entry-photo__overlay"></div>
+      </div>
+      <div class="entry-body">
+        <p>七月の最初の朝は、まるで世界が深呼吸をするように始まった。カーテンの隙間から差し込む光が、部屋の埃をゆっくりと照らし出す。今日からの一ヶ月が、どんな色に染まるのかまだ誰にもわからない。ただ、窓の向こうに広がる空だけが、静かに約束を交わしているようだった。</p>
+        <p>新しいノートの一ページ目に、日付だけを書いた。それだけで十分だと思えた朝。</p>
+      </div>
+      <div class="emotion-params">
+        <div class="emotion-param">
+          <div class="emotion-param__label">期待感 <span class="emotion-param__value">72%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--amber" style="width: 72%"></div></div>
+        </div>
+        <div class="emotion-param">
+          <div class="emotion-param__label">静けさ <span class="emotion-param__value">85%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--sky" style="width: 85%"></div></div>
+        </div>
+        <div class="emotion-param">
+          <div class="emotion-param__label">不安 <span class="emotion-param__value">30%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--violet" style="width: 30%"></div></div>
+        </div>
+        <div class="emotion-param">
+          <div class="emotion-param__label">充足感 <span class="emotion-param__value">60%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--teal" style="width: 60%"></div></div>
+        </div>
+      </div>
+      <div class="reactions">
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">🤍</span><span class="reaction-btn__count">12</span></button>
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">🌿</span><span class="reaction-btn__count">5</span></button>
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">✨</span><span class="reaction-btn__count">8</span></button>
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">🫧</span><span class="reaction-btn__count">3</span></button>
+      </div>
+    </article>
+
+    <!-- ===== July 3 ===== -->
+    <article class="diary-entry" id="july-03">
+      <div class="entry-header">
+        <div class="entry-date">
+          <span class="entry-date__day">03</span>
+          <span class="entry-date__weekday">FRI</span>
+        </div>
+        <span class="entry-mood" title="憂鬱">🌧️</span>
+      </div>
+      <div class="entry-photo">
+        <div class="photo-abstract photo-abstract--rain"></div>
+        <div class="entry-photo__overlay"></div>
+      </div>
+      <div class="entry-body">
+        <p>午後から降り出した雨は、街の輪郭をやさしく溶かしていった。窓に貼りつく雨粒の一つひとつが、小さなレンズとなって外の景色を歪める。誰かに会いたいような、誰にも会いたくないような、その曖昧な感情をポケットに押し込んで、ただ窓辺に座っていた。</p>
+        <p>雨の匂いだけが、今日唯一の訪問者だった。</p>
+      </div>
+      <div class="emotion-params">
+        <div class="emotion-param">
+          <div class="emotion-param__label">切なさ <span class="emotion-param__value">78%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--indigo" style="width: 78%"></div></div>
+        </div>
+        <div class="emotion-param">
+          <div class="emotion-param__label">安心感 <span class="emotion-param__value">55%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--teal" style="width: 55%"></div></div>
+        </div>
+        <div class="emotion-param">
+          <div class="emotion-param__label">孤独 <span class="emotion-param__value">65%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--violet" style="width: 65%"></div></div>
+        </div>
+        <div class="emotion-param">
+          <div class="emotion-param__label">内省 <span class="emotion-param__value">90%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--sky" style="width: 90%"></div></div>
+        </div>
+      </div>
+      <div class="reactions">
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">🤍</span><span class="reaction-btn__count">20</span></button>
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">🌧️</span><span class="reaction-btn__count">14</span></button>
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">🫂</span><span class="reaction-btn__count">9</span></button>
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">💤</span><span class="reaction-btn__count">2</span></button>
+      </div>
+    </article>
+
+    <!-- ===== July 6 ===== -->
+    <article class="diary-entry" id="july-06">
+      <div class="entry-header">
+        <div class="entry-date">
+          <span class="entry-date__day">06</span>
+          <span class="entry-date__weekday">MON</span>
+        </div>
+        <span class="entry-mood" title="穏やか">☕</span>
+      </div>
+      <div class="entry-photo">
+        <div class="photo-abstract photo-abstract--cafe"></div>
+        <div class="entry-photo__overlay"></div>
+      </div>
+      <div class="entry-body">
+        <p>いつもの喫茶店の、いつもの席。マスターが何も言わずに出してくれたアイスコーヒーの氷が、カランと小さな音を立てた。その音がやけに遠くまで響く気がして、一瞬だけ時間が止まったような錯覚を覚えた。</p>
+        <p>窓際の席で本を開いたけれど、一行も読み進められないまま、ただ光の筋が床を横切るのを眺めていた。それで十分に豊かな午後だった。</p>
+      </div>
+      <div class="emotion-params">
+        <div class="emotion-param">
+          <div class="emotion-param__label">穏やかさ <span class="emotion-param__value">92%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--teal" style="width: 92%"></div></div>
+        </div>
+        <div class="emotion-param">
+          <div class="emotion-param__label">ノスタルジー <span class="emotion-param__value">68%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--amber" style="width: 68%"></div></div>
+        </div>
+        <div class="emotion-param">
+          <div class="emotion-param__label">充足感 <span class="emotion-param__value">80%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--indigo" style="width: 80%"></div></div>
+        </div>
+        <div class="emotion-param">
+          <div class="emotion-param__label">眠気 <span class="emotion-param__value">45%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--rose" style="width: 45%"></div></div>
+        </div>
+      </div>
+      <div class="reactions">
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">🤍</span><span class="reaction-btn__count">15</span></button>
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">☕</span><span class="reaction-btn__count">22</span></button>
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">📖</span><span class="reaction-btn__count">7</span></button>
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">😌</span><span class="reaction-btn__count">11</span></button>
+      </div>
+    </article>
+
+    <!-- ===== July 9 ===== -->
+    <article class="diary-entry" id="july-09">
+      <div class="entry-header">
+        <div class="entry-date">
+          <span class="entry-date__day">09</span>
+          <span class="entry-date__weekday">THU</span>
+        </div>
+        <span class="entry-mood" title="高揚">🌅</span>
+      </div>
+      <div class="entry-photo">
+        <div class="photo-abstract photo-abstract--sunset"></div>
+        <div class="entry-photo__overlay"></div>
+      </div>
+      <div class="entry-body">
+        <p>夕暮れの海岸線を、あてもなく歩いた。波が砂を攫うたびに、足元から小さな泡が生まれては消える。空が赤紫に燃え上がる瞬間、隣を歩く誰かの影が長く伸びて、まるで二人分の時間がそこにあるように見えた。</p>
+        <p>水平線が最後の光を飲み込んだとき、胸の奥で何かが静かに崩れた。それは悲しみではなく、美しすぎるものを前にしたときの、あの名前のない感情だった。</p>
+      </div>
+      <div class="emotion-params">
+        <div class="emotion-param">
+          <div class="emotion-param__label">高揚感 <span class="emotion-param__value">88%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--amber" style="width: 88%"></div></div>
+        </div>
+        <div class="emotion-param">
+          <div class="emotion-param__label">切なさ <span class="emotion-param__value">72%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--rose" style="width: 72%"></div></div>
+        </div>
+        <div class="emotion-param">
+          <div class="emotion-param__label">解放感 <span class="emotion-param__value">85%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--sky" style="width: 85%"></div></div>
+        </div>
+        <div class="emotion-param">
+          <div class="emotion-param__label">畏敬 <span class="emotion-param__value">95%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--violet" style="width: 95%"></div></div>
+        </div>
+      </div>
+      <div class="reactions">
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">🤍</span><span class="reaction-btn__count">34</span></button>
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">🌅</span><span class="reaction-btn__count">28</span></button>
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">🥹</span><span class="reaction-btn__count">19</span></button>
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">🌊</span><span class="reaction-btn__count">15</span></button>
+      </div>
+    </article>
+
+    <!-- ===== July 12 ===== -->
+    <article class="diary-entry" id="july-12">
+      <div class="entry-header">
+        <div class="entry-date">
+          <span class="entry-date__day">12</span>
+          <span class="entry-date__weekday">SUN</span>
+        </div>
+        <span class="entry-mood" title="ノスタルジック">🎞️</span>
+      </div>
+      <div class="entry-photo">
+        <div class="photo-abstract photo-abstract--book"></div>
+        <div class="entry-photo__overlay"></div>
+      </div>
+      <div class="entry-body">
+        <p>押し入れの奥から見つけた古いアルバム。写真の中の自分は笑っていて、でもその表情の裏に何を隠していたのかは、もう思い出せない。セピアに褪せた風景が、記憶より美しく見えるのは、きっと時間が優しいフィルターをかけてくれたからだ。</p>
+        <p>一枚の写真を手に取ったまま、気づけば二時間が過ぎていた。過去は沈黙しているのに、こんなにも雄弁だ。</p>
+      </div>
+      <div class="emotion-params">
+        <div class="emotion-param">
+          <div class="emotion-param__label">ノスタルジー <span class="emotion-param__value">95%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--amber" style="width: 95%"></div></div>
+        </div>
+        <div class="emotion-param">
+          <div class="emotion-param__label">寂しさ <span class="emotion-param__value">60%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--indigo" style="width: 60%"></div></div>
+        </div>
+        <div class="emotion-param">
+          <div class="emotion-param__label">温かさ <span class="emotion-param__value">75%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--rose" style="width: 75%"></div></div>
+        </div>
+        <div class="emotion-param">
+          <div class="emotion-param__label">内省 <span class="emotion-param__value">88%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--violet" style="width: 88%"></div></div>
+        </div>
+      </div>
+      <div class="reactions">
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">🤍</span><span class="reaction-btn__count">18</span></button>
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">📷</span><span class="reaction-btn__count">10</span></button>
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">🥲</span><span class="reaction-btn__count">13</span></button>
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">🕰️</span><span class="reaction-btn__count">6</span></button>
+      </div>
+    </article>
+
+    <!-- ===== July 15 ===== -->
+    <article class="diary-entry" id="july-15">
+      <div class="entry-header">
+        <div class="entry-date">
+          <span class="entry-date__day">15</span>
+          <span class="entry-date__weekday">WED</span>
+        </div>
+        <span class="entry-mood" title="不安と焦燥">🌀</span>
+      </div>
+      <div class="entry-photo">
+        <div class="photo-abstract photo-abstract--night"></div>
+        <div class="entry-photo__overlay"></div>
+      </div>
+      <div class="entry-body">
+        <p>深夜二時、天井の模様が顔に見えてくる頃合いに、ふと思い出す。言おうとして飲み込んだ言葉、送ろうとして消したメッセージ。それらが亡霊のように枕元に並んで、静かにこちらを見ている。</p>
+        <p>眠れない夜の思考は、いつも同じところをぐるぐると回る。螺旋階段を降りているのか昇っているのか、暗闇の中では区別がつかない。明日の朝になれば、きっとこの感情にも名前がつくだろう。</p>
+      </div>
+      <div class="emotion-params">
+        <div class="emotion-param">
+          <div class="emotion-param__label">焦燥感 <span class="emotion-param__value">82%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--rose" style="width: 82%"></div></div>
+        </div>
+        <div class="emotion-param">
+          <div class="emotion-param__label">不安 <span class="emotion-param__value">75%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--violet" style="width: 75%"></div></div>
+        </div>
+        <div class="emotion-param">
+          <div class="emotion-param__label">後悔 <span class="emotion-param__value">68%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--indigo" style="width: 68%"></div></div>
+        </div>
+        <div class="emotion-param">
+          <div class="emotion-param__label">希望 <span class="emotion-param__value">25%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--amber" style="width: 25%"></div></div>
+        </div>
+      </div>
+      <div class="reactions">
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">🤍</span><span class="reaction-btn__count">25</span></button>
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">🌙</span><span class="reaction-btn__count">16</span></button>
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">🫂</span><span class="reaction-btn__count">21</span></button>
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">💭</span><span class="reaction-btn__count">8</span></button>
+      </div>
+    </article>
+
+    <!-- ===== July 18 ===== -->
+    <article class="diary-entry" id="july-18">
+      <div class="entry-header">
+        <div class="entry-date">
+          <span class="entry-date__day">18</span>
+          <span class="entry-date__weekday">SAT</span>
+        </div>
+        <span class="entry-mood" title="冒険心">🚃</span>
+      </div>
+      <div class="entry-photo">
+        <div class="photo-abstract photo-abstract--train"></div>
+        <div class="entry-photo__overlay"></div>
+      </div>
+      <div class="entry-body">
+        <p>行き先も決めずに乗った各駅停車。車窓から見える景色が、街から田園に、田園から山に変わっていく。座席に沈み込んで、レールの振動をそのまま体に受け止める。目的地がないということは、どこに降りても正解だということだ。</p>
+        <p>知らない駅で降りた。小さな商店で買ったラムネが、驚くほど甘くて、子供の頃の夏を丸ごと思い出した。</p>
+      </div>
+      <div class="emotion-params">
+        <div class="emotion-param">
+          <div class="emotion-param__label">自由 <span class="emotion-param__value">90%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--sky" style="width: 90%"></div></div>
+        </div>
+        <div class="emotion-param">
+          <div class="emotion-param__label">好奇心 <span class="emotion-param__value">85%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--amber" style="width: 85%"></div></div>
+        </div>
+        <div class="emotion-param">
+          <div class="emotion-param__label">解放感 <span class="emotion-param__value">78%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--teal" style="width: 78%"></div></div>
+        </div>
+        <div class="emotion-param">
+          <div class="emotion-param__label">ノスタルジー <span class="emotion-param__value">55%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--rose" style="width: 55%"></div></div>
+        </div>
+      </div>
+      <div class="reactions">
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">🤍</span><span class="reaction-btn__count">19</span></button>
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">🚃</span><span class="reaction-btn__count">12</span></button>
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">🍋</span><span class="reaction-btn__count">8</span></button>
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">🗺️</span><span class="reaction-btn__count">5</span></button>
+      </div>
+    </article>
+
+    <!-- ===== July 21 ===== -->
+    <article class="diary-entry" id="july-21">
+      <div class="entry-header">
+        <div class="entry-date">
+          <span class="entry-date__day">21</span>
+          <span class="entry-date__weekday">TUE</span>
+        </div>
+        <span class="entry-mood" title="生命力">🌿</span>
+      </div>
+      <div class="entry-photo">
+        <div class="photo-abstract photo-abstract--garden"></div>
+        <div class="entry-photo__overlay"></div>
+      </div>
+      <div class="entry-body">
+        <p>祖母の家の庭で、朝顔が咲いているのを見つけた。青紫のグラデーションが朝露に濡れて、まるで小さな宇宙を覗き込んでいるようだった。祖母は何も言わず、ただ水をやりながら微笑んでいた。その横顔に、季節を何十回も迎えてきた人だけが持つ穏やかさがあった。</p>
+        <p>帰り道、手のひらに残った土の匂いが、なぜか目頭を熱くさせた。</p>
+      </div>
+      <div class="emotion-params">
+        <div class="emotion-param">
+          <div class="emotion-param__label">温かさ <span class="emotion-param__value">95%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--amber" style="width: 95%"></div></div>
+        </div>
+        <div class="emotion-param">
+          <div class="emotion-param__label">感謝 <span class="emotion-param__value">88%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--teal" style="width: 88%"></div></div>
+        </div>
+        <div class="emotion-param">
+          <div class="emotion-param__label">儚さ <span class="emotion-param__value">62%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--violet" style="width: 62%"></div></div>
+        </div>
+        <div class="emotion-param">
+          <div class="emotion-param__label">生命力 <span class="emotion-param__value">80%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--sky" style="width: 80%"></div></div>
+        </div>
+      </div>
+      <div class="reactions">
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">🤍</span><span class="reaction-btn__count">27</span></button>
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">🌸</span><span class="reaction-btn__count">18</span></button>
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">🥹</span><span class="reaction-btn__count">22</span></button>
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">🌿</span><span class="reaction-btn__count">9</span></button>
+      </div>
+    </article>
+
+    <!-- ===== July 24 ===== -->
+    <article class="diary-entry" id="july-24">
+      <div class="entry-header">
+        <div class="entry-date">
+          <span class="entry-date__day">24</span>
+          <span class="entry-date__weekday">FRI</span>
+        </div>
+        <span class="entry-mood" title="夜の街">🏙️</span>
+      </div>
+      <div class="entry-photo">
+        <div class="photo-abstract photo-abstract--city"></div>
+        <div class="entry-photo__overlay"></div>
+      </div>
+      <div class="entry-body">
+        <p>夜の街は、昼間とは別の生き物だ。ネオンサインが雨に濡れたアスファルトに反射して、道が二つに増える。上を歩いているのか、下を歩いているのか、ふと迷子になるような感覚が心地よかった。</p>
+        <p>居酒屋の提灯が、温かいオレンジ色で闇を穿つ。中から漏れてくる笑い声が、今夜だけは自分のものでもあるような気がした。一杯だけ、と思って入った店で、結局三時間も過ごしてしまった。</p>
+      </div>
+      <div class="emotion-params">
+        <div class="emotion-param">
+          <div class="emotion-param__label">興奮 <span class="emotion-param__value">70%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--rose" style="width: 70%"></div></div>
+        </div>
+        <div class="emotion-param">
+          <div class="emotion-param__label">孤独 <span class="emotion-param__value">45%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--indigo" style="width: 45%"></div></div>
+        </div>
+        <div class="emotion-param">
+          <div class="emotion-param__label">酩酊感 <span class="emotion-param__value">58%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--amber" style="width: 58%"></div></div>
+        </div>
+        <div class="emotion-param">
+          <div class="emotion-param__label">帰属感 <span class="emotion-param__value">42%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--teal" style="width: 42%"></div></div>
+        </div>
+      </div>
+      <div class="reactions">
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">🤍</span><span class="reaction-btn__count">16</span></button>
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">🍺</span><span class="reaction-btn__count">14</span></button>
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">🌃</span><span class="reaction-btn__count">11</span></button>
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">🫂</span><span class="reaction-btn__count">7</span></button>
+      </div>
+    </article>
+
+    <!-- ===== July 27 ===== -->
+    <article class="diary-entry" id="july-27">
+      <div class="entry-header">
+        <div class="entry-date">
+          <span class="entry-date__day">27</span>
+          <span class="entry-date__weekday">MON</span>
+        </div>
+        <span class="entry-mood" title="祈り">⛩️</span>
+      </div>
+      <div class="entry-photo">
+        <div class="photo-abstract photo-abstract--temple"></div>
+        <div class="entry-photo__overlay"></div>
+      </div>
+      <div class="entry-body">
+        <p>猛暑日の神社は、蝉の声に包まれて、まるで別世界のようだった。石段を登るたびに、世俗のノイズが一段ずつ剥がれていく気がする。木漏れ日が玉砂利の上に複雑な模様を描いて、それは言語よりも前の、原始的な美しさだった。</p>
+        <p>お賽銭を投げて、鈴を鳴らして、目を閉じた。願い事なんてなかった。ただ、こうして立っていることに感謝した。それだけで、帰り道の空は少しだけ高く感じた。</p>
+      </div>
+      <div class="emotion-params">
+        <div class="emotion-param">
+          <div class="emotion-param__label">敬虔さ <span class="emotion-param__value">85%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--violet" style="width: 85%"></div></div>
+        </div>
+        <div class="emotion-param">
+          <div class="emotion-param__label">浄化 <span class="emotion-param__value">90%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--teal" style="width: 90%"></div></div>
+        </div>
+        <div class="emotion-param">
+          <div class="emotion-param__label">静寂 <span class="emotion-param__value">92%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--sky" style="width: 92%"></div></div>
+        </div>
+        <div class="emotion-param">
+          <div class="emotion-param__label">謙虚さ <span class="emotion-param__value">78%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--amber" style="width: 78%"></div></div>
+        </div>
+      </div>
+      <div class="reactions">
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">🤍</span><span class="reaction-btn__count">22</span></button>
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">🙏</span><span class="reaction-btn__count">30</span></button>
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">✨</span><span class="reaction-btn__count">15</span></button>
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">🍃</span><span class="reaction-btn__count">9</span></button>
+      </div>
+    </article>
+
+    <!-- ===== July 29 ===== -->
+    <article class="diary-entry" id="july-29">
+      <div class="entry-header">
+        <div class="entry-date">
+          <span class="entry-date__day">29</span>
+          <span class="entry-date__weekday">WED</span>
+        </div>
+        <span class="entry-mood" title="歓喜">🎆</span>
+      </div>
+      <div class="entry-photo">
+        <div class="photo-abstract photo-abstract--fireworks"></div>
+        <div class="entry-photo__overlay"></div>
+      </div>
+      <div class="entry-body">
+        <p>花火大会。河川敷に敷いたレジャーシートの上で、何千という光の花が夜空に咲いては散っていく。一瞬の輝きが網膜に焼きつく前に、もう次の花が開く。その連続が、まるで感情の奔流のようだった。</p>
+        <p>隣にいた友人が「きれいだね」と呟いた。それだけで十分だった。光と音に包まれながら、この瞬間を写真に収めることをやめて、ただ目を見開いていた。花火が消えたあとの闇が、やけに優しかった。</p>
+      </div>
+      <div class="emotion-params">
+        <div class="emotion-param">
+          <div class="emotion-param__label">歓喜 <span class="emotion-param__value">92%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--rose" style="width: 92%"></div></div>
+        </div>
+        <div class="emotion-param">
+          <div class="emotion-param__label">儚さ <span class="emotion-param__value">80%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--indigo" style="width: 80%"></div></div>
+        </div>
+        <div class="emotion-param">
+          <div class="emotion-param__label">連帯感 <span class="emotion-param__value">75%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--amber" style="width: 75%"></div></div>
+        </div>
+        <div class="emotion-param">
+          <div class="emotion-param__label">刹那的喜び <span class="emotion-param__value">98%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--violet" style="width: 98%"></div></div>
+        </div>
+      </div>
+      <div class="reactions">
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">🤍</span><span class="reaction-btn__count">45</span></button>
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">🎆</span><span class="reaction-btn__count">38</span></button>
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">🥹</span><span class="reaction-btn__count">22</span></button>
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">🫧</span><span class="reaction-btn__count">11</span></button>
+      </div>
+    </article>
+
+    <!-- ===== July 31 ===== -->
+    <article class="diary-entry" id="july-31">
+      <div class="entry-header">
+        <div class="entry-date">
+          <span class="entry-date__day">31</span>
+          <span class="entry-date__weekday">FRI</span>
+        </div>
+        <span class="entry-mood" title="終章">🌊</span>
+      </div>
+      <div class="entry-photo">
+        <div class="photo-abstract photo-abstract--sea"></div>
+        <div class="entry-photo__overlay"></div>
+      </div>
+      <div class="entry-body">
+        <p>七月の最終日。一ヶ月前の自分が今日の自分を見たら、何と言うだろう。同じ部屋、同じ椅子、同じカップ。何も変わっていないように見えて、でも窓から見える空の色が、ほんの少しだけ違って見える。</p>
+        <p>季節は人を待たずに進む。八月の扉はもう目の前にあって、ノブに手をかけるだけでいい。振り返ることと前を向くことは、きっと同じ動作の裏と表だ。このノートを閉じて、新しいページを開こう。</p>
+        <p>すべての日々に、ありがとう。</p>
+      </div>
+      <div class="emotion-params">
+        <div class="emotion-param">
+          <div class="emotion-param__label">感謝 <span class="emotion-param__value">95%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--amber" style="width: 95%"></div></div>
+        </div>
+        <div class="emotion-param">
+          <div class="emotion-param__label">切なさ <span class="emotion-param__value">70%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--indigo" style="width: 70%"></div></div>
+        </div>
+        <div class="emotion-param">
+          <div class="emotion-param__label">受容 <span class="emotion-param__value">88%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--teal" style="width: 88%"></div></div>
+        </div>
+        <div class="emotion-param">
+          <div class="emotion-param__label">希望 <span class="emotion-param__value">82%</span></div>
+          <div class="emotion-param__bar"><div class="emotion-param__fill fill--rose" style="width: 82%"></div></div>
+        </div>
+      </div>
+      <div class="reactions">
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">🤍</span><span class="reaction-btn__count">52</span></button>
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">🥹</span><span class="reaction-btn__count">34</span></button>
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">✨</span><span class="reaction-btn__count">28</span></button>
+        <button class="reaction-btn" onclick="react(this)"><span class="reaction-btn__emoji">🙏</span><span class="reaction-btn__count">19</span></button>
+      </div>
+    </article>
+
+  </main>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="site-footer">
+    <div class="footer-divider"></div>
+    <p class="footer-text">この日記はAIによって情景が少しだけ脚色されています。</p>
+    <ul class="footer-links">
+      <li><a href="https://x.com/" target="_blank" rel="noopener noreferrer">X</a></li>
+      <li><a href="https://instagram.com/" target="_blank" rel="noopener noreferrer">Instagram</a></li>
+      <li><a href="https://github.com/" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+    </ul>
+    <p class="footer-copy">© 2026 透過日記 — All moments are fleeting.</p>
+  </footer>
+
+  <!-- ==================== MINIMAL JS — Emoji Reactions ==================== -->
+  <script>
+    function react(btn) {
+      const countEl = btn.querySelector('.reaction-btn__count');
+      const isActive = btn.classList.contains('active');
+
+      if (isActive) {
+        btn.classList.remove('active');
+        countEl.textContent = parseInt(countEl.textContent) - 1;
+      } else {
+        btn.classList.add('active');
+        countEl.textContent = parseInt(countEl.textContent) + 1;
+      }
+
+      // Micro-animation: pulse
+      btn.style.transform = 'scale(1.18)';
+      setTimeout(() => {
+        btn.style.transform = '';
+      }, 150);
+    }
+
+    // Intersection Observer for scroll-triggered animation
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.style.animationPlayState = 'running';
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.08 });
+
+      document.querySelectorAll('.diary-entry').forEach(entry => {
+        entry.style.animationPlayState = 'paused';
+        observer.observe(entry);
+      });
+    }
+  </script>
+
+</body>
+</html>
