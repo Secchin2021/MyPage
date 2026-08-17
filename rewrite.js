@@ -1,4 +1,68 @@
-<!DOCTYPE html>
+const fs = require('fs');
+const path = require('path');
+
+const html = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
+
+// Use regex to extract articles
+const articleRegex = /<article class="diary-entry" id="([^"]+)">([\s\S]*?)<\/article>/g;
+
+const defaultEntries = [];
+let match;
+while ((match = articleRegex.exec(html)) !== null) {
+  const id = match[1];
+  const content = match[2];
+
+  // Extract day and weekday
+  const dayMatch = content.match(/<span class="entry-date__day">([^<]+)<\/span>/);
+  const weekdayMatch = content.match(/<span class="entry-date__weekday">([^<]+)<\/span>/);
+  const dateDay = dayMatch ? dayMatch[1] : '';
+  const dateWeekday = weekdayMatch ? weekdayMatch[1] : '';
+
+  // Extract mood emoji
+  const moodMatch = content.match(/<span class="entry-mood" title="[^"]*">([^<]+)<\/span>/);
+  const mood = moodMatch ? moodMatch[1] : '';
+
+  // Extract photo class
+  const photoMatch = content.match(/<div class="photo-abstract (photo-abstract--[^"]+)"><\/div>/);
+  const photoClass = photoMatch ? photoMatch[1] : 'photo-abstract--morning';
+
+  // Extract body HTML
+  const bodyMatch = content.match(/<div class="entry-body">([\s\S]*?)<\/div>/);
+  const bodyHTML = bodyMatch ? bodyMatch[1].trim() : '';
+
+  // Extract emotions
+  // For the new spec, we just take the old values roughly and assign them to joy, anger, sorrow, fun
+  const emotionValues = [...content.matchAll(/<span class="emotion-param__value">(\d+)%<\/span>/g)].map(m => parseInt(m[1]));
+  const emotions = {
+    joy: emotionValues[0] || 50,
+    anger: emotionValues[1] || 10,
+    sorrow: emotionValues[2] || 50,
+    fun: emotionValues[3] || 50
+  };
+
+  // Extract reactions
+  const reactionRegex = /<button class="reaction-btn" onclick="react\(this\)"><span class="reaction-btn__emoji">([^<]+)<\/span><span class="reaction-btn__count">(\d+)<\/span><\/button>/g;
+  const reactions = [];
+  let rMatch;
+  while ((rMatch = reactionRegex.exec(content)) !== null) {
+    reactions.push({ emoji: rMatch[1], count: parseInt(rMatch[2]) });
+  }
+
+  defaultEntries.push({
+    id,
+    dateDay,
+    dateWeekday,
+    mood,
+    photoData: '', // Base64 empty by default
+    photoClass,
+    bodyHTML,
+    emotions,
+    reactions
+  });
+}
+
+// Generate the new HTML
+const newHTML = `<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
@@ -274,7 +338,7 @@
   <script>
     const STORAGE_KEY = 'transparent_diary_data';
     const HEADER_KEY = 'transparent_diary_header';
-    const defaultEntries = [{"id":"july-01","dateDay":"01","dateWeekday":"WED","mood":"🌱","photoData":"","photoClass":"photo-abstract--morning","bodyHTML":"<p>七月の最初の朝は、まるで世界が深呼吸をするように始まった。カーテンの隙間から差し込む光が、部屋の埃をゆっくりと照らし出す。今日からの一ヶ月が、どんな色に染まるのかまだ誰にもわからない。ただ、窓の向こうに広がる空だけが、静かに約束を交わしているようだった。</p>\n        <p>新しいノートの一ページ目に、日付だけを書いた。それだけで十分だと思えた朝。</p>","emotions":{"joy":72,"anger":85,"sorrow":30,"fun":60},"reactions":[{"emoji":"🤍","count":12},{"emoji":"🌿","count":5},{"emoji":"✨","count":8},{"emoji":"🫧","count":3}]},{"id":"july-03","dateDay":"03","dateWeekday":"FRI","mood":"🌧️","photoData":"","photoClass":"photo-abstract--rain","bodyHTML":"<p>午後から降り出した雨は、街の輪郭をやさしく溶かしていった。窓に貼りつく雨粒の一つひとつが、小さなレンズとなって外の景色を歪める。誰かに会いたいような、誰にも会いたくないような、その曖昧な感情をポケットに押し込んで、ただ窓辺に座っていた。</p>\n        <p>雨の匂いだけが、今日唯一の訪問者だった。</p>","emotions":{"joy":78,"anger":55,"sorrow":65,"fun":90},"reactions":[{"emoji":"🤍","count":20},{"emoji":"🌧️","count":14},{"emoji":"🫂","count":9},{"emoji":"💤","count":2}]},{"id":"july-06","dateDay":"06","dateWeekday":"MON","mood":"☕","photoData":"","photoClass":"photo-abstract--cafe","bodyHTML":"<p>いつもの喫茶店の、いつもの席。マスターが何も言わずに出してくれたアイスコーヒーの氷が、カランと小さな音を立てた。その音がやけに遠くまで響く気がして、一瞬だけ時間が止まったような錯覚を覚えた。</p>\n        <p>窓際の席で本を開いたけれど、一行も読み進められないまま、ただ光の筋が床を横切るのを眺めていた。それで十分に豊かな午後だった。</p>","emotions":{"joy":92,"anger":68,"sorrow":80,"fun":45},"reactions":[{"emoji":"🤍","count":15},{"emoji":"☕","count":22},{"emoji":"📖","count":7},{"emoji":"😌","count":11}]},{"id":"july-09","dateDay":"09","dateWeekday":"THU","mood":"🌅","photoData":"","photoClass":"photo-abstract--sunset","bodyHTML":"<p>夕暮れの海岸線を、あてもなく歩いた。波が砂を攫うたびに、足元から小さな泡が生まれては消える。空が赤紫に燃え上がる瞬間、隣を歩く誰かの影が長く伸びて、まるで二人分の時間がそこにあるように見えた。</p>\n        <p>水平線が最後の光を飲み込んだとき、胸の奥で何かが静かに崩れた。それは悲しみではなく、美しすぎるものを前にしたときの、あの名前のない感情だった。</p>","emotions":{"joy":88,"anger":72,"sorrow":85,"fun":95},"reactions":[{"emoji":"🤍","count":34},{"emoji":"🌅","count":28},{"emoji":"🥹","count":19},{"emoji":"🌊","count":15}]},{"id":"july-12","dateDay":"12","dateWeekday":"SUN","mood":"🎞️","photoData":"","photoClass":"photo-abstract--book","bodyHTML":"<p>押し入れの奥から見つけた古いアルバム。写真の中の自分は笑っていて、でもその表情の裏に何を隠していたのかは、もう思い出せない。セピアに褪せた風景が、記憶より美しく見えるのは、きっと時間が優しいフィルターをかけてくれたからだ。</p>\n        <p>一枚の写真を手に取ったまま、気づけば二時間が過ぎていた。過去は沈黙しているのに、こんなにも雄弁だ。</p>","emotions":{"joy":95,"anger":60,"sorrow":75,"fun":88},"reactions":[{"emoji":"🤍","count":18},{"emoji":"📷","count":10},{"emoji":"🥲","count":13},{"emoji":"🕰️","count":6}]},{"id":"july-15","dateDay":"15","dateWeekday":"WED","mood":"🌀","photoData":"","photoClass":"photo-abstract--night","bodyHTML":"<p>深夜二時、天井の模様が顔に見えてくる頃合いに、ふと思い出す。言おうとして飲み込んだ言葉、送ろうとして消したメッセージ。それらが亡霊のように枕元に並んで、静かにこちらを見ている。</p>\n        <p>眠れない夜の思考は、いつも同じところをぐるぐると回る。螺旋階段を降りているのか昇っているのか、暗闇の中では区別がつかない。明日の朝になれば、きっとこの感情にも名前がつくだろう。</p>","emotions":{"joy":82,"anger":75,"sorrow":68,"fun":25},"reactions":[{"emoji":"🤍","count":25},{"emoji":"🌙","count":16},{"emoji":"🫂","count":21},{"emoji":"💭","count":8}]},{"id":"july-18","dateDay":"18","dateWeekday":"SAT","mood":"🚃","photoData":"","photoClass":"photo-abstract--train","bodyHTML":"<p>行き先も決めずに乗った各駅停車。車窓から見える景色が、街から田園に、田園から山に変わっていく。座席に沈み込んで、レールの振動をそのまま体に受け止める。目的地がないということは、どこに降りても正解だということだ。</p>\n        <p>知らない駅で降りた。小さな商店で買ったラムネが、驚くほど甘くて、子供の頃の夏を丸ごと思い出した。</p>","emotions":{"joy":90,"anger":85,"sorrow":78,"fun":55},"reactions":[{"emoji":"🤍","count":19},{"emoji":"🚃","count":12},{"emoji":"🍋","count":8},{"emoji":"🗺️","count":5}]},{"id":"july-21","dateDay":"21","dateWeekday":"TUE","mood":"🌿","photoData":"","photoClass":"photo-abstract--garden","bodyHTML":"<p>祖母の家の庭で、朝顔が咲いているのを見つけた。青紫のグラデーションが朝露に濡れて、まるで小さな宇宙を覗き込んでいるようだった。祖母は何も言わず、ただ水をやりながら微笑んでいた。その横顔に、季節を何十回も迎えてきた人だけが持つ穏やかさがあった。</p>\n        <p>帰り道、手のひらに残った土の匂いが、なぜか目頭を熱くさせた。</p>","emotions":{"joy":95,"anger":88,"sorrow":62,"fun":80},"reactions":[{"emoji":"🤍","count":27},{"emoji":"🌸","count":18},{"emoji":"🥹","count":22},{"emoji":"🌿","count":9}]},{"id":"july-24","dateDay":"24","dateWeekday":"FRI","mood":"🏙️","photoData":"","photoClass":"photo-abstract--city","bodyHTML":"<p>夜の街は、昼間とは別の生き物だ。ネオンサインが雨に濡れたアスファルトに反射して、道が二つに増える。上を歩いているのか、下を歩いているのか、ふと迷子になるような感覚が心地よかった。</p>\n        <p>居酒屋の提灯が、温かいオレンジ色で闇を穿つ。中から漏れてくる笑い声が、今夜だけは自分のものでもあるような気がした。一杯だけ、と思って入った店で、結局三時間も過ごしてしまった。</p>","emotions":{"joy":70,"anger":45,"sorrow":58,"fun":42},"reactions":[{"emoji":"🤍","count":16},{"emoji":"🍺","count":14},{"emoji":"🌃","count":11},{"emoji":"🫂","count":7}]},{"id":"july-27","dateDay":"27","dateWeekday":"MON","mood":"⛩️","photoData":"","photoClass":"photo-abstract--temple","bodyHTML":"<p>猛暑日の神社は、蝉の声に包まれて、まるで別世界のようだった。石段を登るたびに、世俗のノイズが一段ずつ剥がれていく気がする。木漏れ日が玉砂利の上に複雑な模様を描いて、それは言語よりも前の、原始的な美しさだった。</p>\n        <p>お賽銭を投げて、鈴を鳴らして、目を閉じた。願い事なんてなかった。ただ、こうして立っていることに感謝した。それだけで、帰り道の空は少しだけ高く感じた。</p>","emotions":{"joy":85,"anger":90,"sorrow":92,"fun":78},"reactions":[{"emoji":"🤍","count":22},{"emoji":"🙏","count":30},{"emoji":"✨","count":15},{"emoji":"🍃","count":9}]},{"id":"july-29","dateDay":"29","dateWeekday":"WED","mood":"🎆","photoData":"","photoClass":"photo-abstract--fireworks","bodyHTML":"<p>花火大会。河川敷に敷いたレジャーシートの上で、何千という光の花が夜空に咲いては散っていく。一瞬の輝きが網膜に焼きつく前に、もう次の花が開く。その連続が、まるで感情の奔流のようだった。</p>\n        <p>隣にいた友人が「きれいだね」と呟いた。それだけで十分だった。光と音に包まれながら、この瞬間を写真に収めることをやめて、ただ目を見開いていた。花火が消えたあとの闇が、やけに優しかった。</p>","emotions":{"joy":92,"anger":80,"sorrow":75,"fun":98},"reactions":[{"emoji":"🤍","count":45},{"emoji":"🎆","count":38},{"emoji":"🥹","count":22},{"emoji":"🫧","count":11}]},{"id":"july-31","dateDay":"31","dateWeekday":"FRI","mood":"🌊","photoData":"","photoClass":"photo-abstract--sea","bodyHTML":"<p>七月の最終日。一ヶ月前の自分が今日の自分を見たら、何と言うだろう。同じ部屋、同じ椅子、同じカップ。何も変わっていないように見えて、でも窓から見える空の色が、ほんの少しだけ違って見える。</p>\n        <p>季節は人を待たずに進む。八月の扉はもう目の前にあって、ノブに手をかけるだけでいい。振り返ることと前を向くことは、きっと同じ動作の裏と表だ。このノートを閉じて、新しいページを開こう。</p>\n        <p>すべての日々に、ありがとう。</p>","emotions":{"joy":95,"anger":70,"sorrow":88,"fun":82},"reactions":[{"emoji":"🤍","count":52},{"emoji":"🥹","count":34},{"emoji":"✨","count":28},{"emoji":"🙏","count":19}]}];
+    const defaultEntries = ${JSON.stringify(defaultEntries)};
 
     let entries = [];
     
@@ -329,7 +393,7 @@
         const clone = template.content.cloneNode(true);
         const article = clone.querySelector('article');
         article.id = entry.id;
-        article.style.animationDelay = `${0.05 * (index + 1)}s`;
+        article.style.animationDelay = \`\${0.05 * (index + 1)}s\`;
 
         // Text fields
         const dateDay = clone.querySelector('[data-field="dateDay"]');
@@ -351,10 +415,10 @@
         // Photo
         const photoDiv = clone.querySelector('.entry-photo__image');
         if (entry.photoData) {
-          photoDiv.style.background = `url(${entry.photoData}) center/cover`;
+          photoDiv.style.background = \`url(\${entry.photoData}) center/cover\`;
           photoDiv.className = 'entry-photo__image'; // remove abstract classes
         } else {
-          photoDiv.className = `entry-photo__image photo-abstract ${entry.photoClass || 'photo-abstract--morning'}`;
+          photoDiv.className = \`entry-photo__image photo-abstract \${entry.photoClass || 'photo-abstract--morning'}\`;
         }
 
         const fileInput = clone.querySelector('.photo-upload-input');
@@ -374,18 +438,18 @@
         // Emotions
         ['joy', 'anger', 'sorrow', 'fun'].forEach(emo => {
           const valStr = (entry.emotions && entry.emotions[emo] !== undefined) ? entry.emotions[emo] : 50;
-          const slider = clone.querySelector(`.emotion-slider[data-emo="${emo}"]`);
-          const fill = clone.querySelector(`.fill--${emo}`);
-          const labelVal = clone.querySelector(`[data-val="${emo}"]`);
+          const slider = clone.querySelector(\`.emotion-slider[data-emo="\${emo}"]\`);
+          const fill = clone.querySelector(\`.fill--\${emo}\`);
+          const labelVal = clone.querySelector(\`[data-val="\${emo}"]\`);
           
           slider.value = valStr;
-          fill.style.width = `${valStr}%`;
-          labelVal.textContent = `${valStr}%`;
+          fill.style.width = \`\${valStr}%\`;
+          labelVal.textContent = \`\${valStr}%\`;
           
           slider.addEventListener('input', (e) => {
             const v = e.target.value;
-            fill.style.width = `${v}%`;
-            labelVal.textContent = `${v}%`;
+            fill.style.width = \`\${v}%\`;
+            labelVal.textContent = \`\${v}%\`;
             entry.emotions[emo] = parseInt(v);
             saveData();
           });
@@ -397,7 +461,7 @@
           entry.reactions.forEach(r => {
             const btn = document.createElement('button');
             btn.className = 'reaction-btn';
-            btn.innerHTML = `<span class="reaction-btn__emoji">${r.emoji}</span><span class="reaction-btn__count">${r.count}</span>`;
+            btn.innerHTML = \`<span class="reaction-btn__emoji">\${r.emoji}</span><span class="reaction-btn__count">\${r.count}</span>\`;
             btn.addEventListener('click', function() {
               const countEl = this.querySelector('.reaction-btn__count');
               if (this.classList.contains('active')) {
@@ -461,4 +525,7 @@
 
   </script>
 </body>
-</html>
+</html>`;
+
+fs.writeFileSync(path.join(__dirname, 'index.html'), newHTML);
+console.log('Successfully rewrote index.html');
