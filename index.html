@@ -301,7 +301,12 @@
     }
 
     function saveData() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+      } catch (e) {
+        console.error(e);
+        alert('保存に失敗しました。データ容量の上限に達した可能性があります（不要な日記や大きな写真を削除してみてください）。');
+      }
     }
     
     function saveHeader() {
@@ -351,7 +356,9 @@
         // Photo
         const photoDiv = clone.querySelector('.entry-photo__image');
         if (entry.photoData) {
-          photoDiv.style.background = `url(${entry.photoData}) center/cover`;
+          photoDiv.style.backgroundImage = `url("${entry.photoData}")`;
+          photoDiv.style.backgroundPosition = 'center';
+          photoDiv.style.backgroundSize = 'cover';
           photoDiv.className = 'entry-photo__image'; // remove abstract classes
         } else {
           photoDiv.className = `entry-photo__image photo-abstract ${entry.photoClass || 'photo-abstract--morning'}`;
@@ -363,9 +370,29 @@
           if (file) {
             const reader = new FileReader();
             reader.onload = (ev) => {
-              entry.photoData = ev.target.result;
-              saveData();
-              renderEntries(); // Re-render to show image
+              const img = new Image();
+              img.onload = () => {
+                const max_size = 800;
+                let width = img.width;
+                let height = img.height;
+                if (width > height && width > max_size) {
+                  height *= max_size / width;
+                  width = max_size;
+                } else if (height > max_size) {
+                  width *= max_size / height;
+                  height = max_size;
+                }
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                // 画像を圧縮して保存 (localStorageの上限対策)
+                entry.photoData = canvas.toDataURL('image/jpeg', 0.7);
+                saveData();
+                renderEntries();
+              };
+              img.src = ev.target.result;
             };
             reader.readAsDataURL(file);
           }
